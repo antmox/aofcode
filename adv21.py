@@ -6,9 +6,48 @@ import timeit, random, time, builtins
 
 assert sys.hexversion >= 0x03080000
 
+# ###########################################################################
+
 # exec(open('adv21.py').read()) ; d21011()
 
+
 # ###########################################################################
+
+# ###########################################################################
+#
+# 2020 DAY 2
+#
+# ###########################################################################
+
+# 1714950
+def d21021():
+    input = list(map(str.split, getinput(2102).splitlines()))
+    hpos, depth = 0, 0
+    for (d, n) in input:
+        if d == 'forward':
+            hpos += int(n)
+        elif d == 'down':
+            depth += int(n)
+        elif d == 'up':
+            depth -= int(n)
+        else: assert 0
+    print(hpos * depth)
+
+# 1281977850
+def d21022():
+    input = list(map(str.split, getinput(2102).splitlines()))
+    hpos, depth, aim = 0, 0, 0
+    for (d, n) in input:
+        if d == 'forward':
+            hpos += int(n)
+            depth += aim * int(n)
+        elif d == 'down':
+            aim += int(n)
+        elif d == 'up':
+            aim -= int(n)
+        else: assert 0
+    print(hpos * depth)
+
 
 # ###########################################################################
 #
@@ -29,6 +68,7 @@ def d21012():
 
 # # from reddit
 # print(sum(x < y for x, y in zip(input, input[3:])))
+
 
 # ###########################################################################
 

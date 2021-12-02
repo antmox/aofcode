@@ -38,6 +38,29 @@ import System.Environment (getArgs)
 -- -------------------------------------------------------------------
 -- -------------------------------------------------------------------
 
+-- 1714950
+solve2102_1 =
+  uncurry (*) . foldl nextpos (0, 0) . map words . lines
+ where
+   nextpos (hpos, dpth) (dir : nb : [])
+     | dir == "forward" = ((hpos + n), dpth)
+     | dir == "up"      = (hpos, (dpth - n))
+     | dir == "down"    = (hpos, (dpth + n))
+     | otherwise        = undefined
+     where n = toInt nb
+
+-- 1281977850
+solve2102_2 =
+  (\(hpos, dpth, _) -> (hpos * dpth)) .
+  foldl nextpos (0, 0, 0) . map words . lines
+ where
+   nextpos (hpos, dpth, aim) (dir : nb : [])
+     | dir == "forward" = (hpos + n, dpth + aim * n, aim)
+     | dir == "up"      = (hpos, dpth, aim - n)
+     | dir == "down"    = (hpos, dpth, aim + n)
+     | otherwise        = undefined
+     where n = toInt nb
+
 
 -- -------------------------------------------------------------------
 -- -------------------------------------------------------------------
