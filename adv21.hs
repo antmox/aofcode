@@ -33,6 +33,42 @@ import System.Environment (getArgs)
 -- -------------------------------------------------------------------
 -- -------------------------------------------------------------------
 --
+-- 2020 DAY 3
+--
+-- -------------------------------------------------------------------
+-- -------------------------------------------------------------------
+
+-- 1071734 : (
+solve2103_1 =
+  foldl1 (*) . map bin2dec . transpose
+  . map (map fst . sortOn snd . map (\x -> (head x, length x)) . group . sort)
+  . transpose . lines
+
+-- 6124992
+solve2103_2 input =
+
+  (bin2dec $ loopr 0 0 inlst) * (bin2dec $ loopr 1 0 inlst)
+
+  where
+    inlst = lines input
+
+    rankb lst =
+      if (nb '0' lst) > (nb '1' lst) then "10" else "01"
+      where nb x = length . filter (== x)
+
+    filtr num rnk lst =
+      filter ((== bit) . (!! num)) lst
+      where bit = (!! rnk) . rankb . map (!! num) $ lst
+
+    loopr rnk num lst
+      | length lst == 1 = head lst
+      | otherwise       =
+        loopr rnk (num + 1) (filtr num rnk lst)
+
+
+-- -------------------------------------------------------------------
+-- -------------------------------------------------------------------
+--
 -- 2020 DAY 2
 --
 -- -------------------------------------------------------------------
@@ -94,6 +130,10 @@ solve2101_2 =
 
 toInt :: String -> Int
 toInt x = read x :: Int
+
+-- https://stackoverflow.com/a/5921593
+bin2dec = foldr (\c s -> s * 2 + c) 0 . reverse . map c2i
+  where c2i c = if c == '0' then 0 else 1
 
 
 -- -------------------------------------------------------------------

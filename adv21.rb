@@ -8,6 +8,35 @@
 
 # ###########################################################################
 #
+# 2021 DAY 3
+#
+# ###########################################################################
+
+# 1071734
+def d21031()
+  input(2103)
+    .split.map(&:chars)
+    .transpose.map(&:tally).map { _1.sort_by(&:last).map(&:first) }
+    .transpose.map { _1.join.to_i(2) }.reduce(&:*)
+end
+
+# 6124992
+def d21032() # so ugly
+  inlst = input(2103).split()
+  nbits = inlst.first.length
+  (0..1).map { |rank|
+    (0..nbits).reduce(inlst) { |curlst, bitnum|
+      nboccs = {"0" => 0, "1" => 0}.update( curlst.map{ _1[bitnum] }.tally )
+      curbit = nboccs.sort_by(&:reverse).at(rank).first
+      matches = curlst.select { _1[bitnum] == curbit }
+      break matches.first if (matches.count == 1)
+      matches
+  } }.map { _1.to_i(2) }.reduce(&:*)
+end
+
+
+# ###########################################################################
+#
 # 2021 DAY 2
 #
 # ###########################################################################
