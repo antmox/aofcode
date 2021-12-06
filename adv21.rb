@@ -6,6 +6,50 @@
 
 # ##############################################################################
 
+# ###########################################################################
+#
+# 2021 DAY 5
+#
+# ###########################################################################
+
+# 6397
+def d21051()
+  input(2105)
+    .split("\n")
+    .map { |line| line.scan(/(\d+)/).map{_1.first.to_i} }
+    .reduce([]) { |acc, (x1, y1, x2, y2)|
+      acc.concat(
+        if x1 == x2 then
+          (y1..y2).step(y1 <= y2 ? 1 : -1).map { |y| [x1, y] }
+        elsif y1 == y2 then
+          (x1..x2).step(x1 <= x2 ? 1 : -1).map { |x| [x, y1] }
+        else [] end )
+    }
+    .tally
+    .filter { |x, y| y >= 2 }.length
+end
+
+# 22335
+def d21052()
+  input(2105)
+    .split("\n")
+    .map { |line| line.scan(/(\d+)/).map{_1.first.to_i} }
+    .reduce([]) { |acc, (x1, y1, x2, y2)|
+      acc.concat(
+        if x1 == x2 then
+          (y1..y2).step(y1 <= y2 ? 1 : -1).map { |y| [x1, y] }
+        elsif y1 == y2 then
+          (x1..x2).step(x1 <= x2 ? 1 : -1).map { |x| [x, y1] }
+        else
+          stepx = (x1 == x2) ? 0 : (x1 <= x2 ? 1 : -1)
+          stepy = (y1 == y2) ? 0 : (y1 <= y2 ? 1 : -1)
+          (0..((x2 - x1) / stepx)).map { |d| [x1 + d * stepx, y1 + d * stepy] }
+        end )
+    }
+    .tally
+    .filter { |x, y| y >= 2 }.length
+end
+
 
 # ###########################################################################
 #
