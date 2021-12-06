@@ -6,6 +6,52 @@
 
 # ##############################################################################
 
+
+# ###########################################################################
+#
+# 2021 DAY 4
+#
+# ###########################################################################
+
+# 33462
+def d21041()
+  nums, *brds = input(2104).split("\n\n")
+  nums = nums.split(",").map(&:to_i)
+  brds = brds.map { _1.split.map(&:to_i) }
+
+  def iswin(brd, nums)
+    ( brd.each_slice(5).to_a + # rows
+      brd.each_slice(5).to_a.transpose # cols
+    ).detect { |values| values.difference(nums).empty? }
+  end
+
+  nums.reduce([]) { |acc, num|
+    winbrd = brds.filter{ |brd| iswin(brd, acc) }.first
+    break winbrd.difference(acc).sum * acc.last if winbrd
+    acc + [num]
+  }
+end
+
+# 30070
+def d21042()
+  nums, *brds = input(2104).split("\n\n")
+  nums = nums.split(",").map(&:to_i)
+  brds = brds.map { _1.split.map(&:to_i) }
+
+  def iswin(brd, nums)
+    ( brd.each_slice(5).to_a + # rows
+      brd.each_slice(5).to_a.transpose # cols
+    ).detect { |values| values.difference(nums).empty? }
+  end
+
+  nums.reduce([brds, []]) { |(rembrds, acc), num|
+    newrems = rembrds.difference(rembrds.filter{ |brd| iswin(brd, acc) })
+    break rembrds.last.difference(acc).sum * acc.last if newrems.empty?
+    [newrems, acc + [num]]
+  }
+end
+
+
 # ###########################################################################
 #
 # 2021 DAY 3
