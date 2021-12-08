@@ -6,6 +6,66 @@
 
 # ##############################################################################
 
+
+# ###########################################################################
+#
+# 2021 DAY 8
+#
+# ###########################################################################
+
+
+# 473
+def d21081()
+  input(2108)
+    .split("\n")
+    .map { |line| line.split("|").map(&:split) }
+    .map { |sig, out| out.map(&:length).filter { [2,3,4,7].include? _1 } }
+    .flatten.length
+end
+
+#   0:      1:      2:      3:      4:     5:      6:      7:      8:      9:
+#  aaaa    ....    aaaa    aaaa    ....   aaaa    aaaa    aaaa    aaaa    aaaa
+# b    c  .    c  .    c  .    c  b    c  b    .  b    .  .    c  b    c  b    c
+# b    c  .    c  .    c  .    c  b    c  b    .  b    .  .    c  b    c  b    c
+#  ....    ....    dddd    dddd    dddd   dddd    dddd    ....    dddd    dddd
+# e    f  .    f  e    .  .    f  .    f  .    f  e    f  .    f  e    f  .    f
+# e    f  .    f  e    .  .    f  .    f  .    f  e    f  .    f  e    f  .    f
+#  gggg    ....    gggg    gggg    ....   gggg    gggg    ....    gggg    gggg
+
+# XXXLEN  1 -> len 2 -      c     f
+# XXXLEN  7 -> len 3 -  a   c     f
+# XXXLEN  4 -> len 4 -    b c d   f
+# XXXLEN  8 -> len 7 -  a b c d e f g
+# LNSUP7  3 -> len 5 -  a   c d   f g  (SUP7: acf)
+# LNDIF4  2 -> len 5 -  a   c d e   g  (DIF4: aeg)
+# LASTLN  5 -> len 5 -  a b   d   f g
+# LNSUP4  9 -> len 6 -  a b c d   f g  (SUP4: bcdf)
+# LNNOT5  0 -> len 6 -  a b c   e f g  (NOT5: d)
+# LASTLN  6 -> len 6 -  a b   d e f g
+
+# 1097568
+def d21082()
+  input(2108)
+    .split("\n")
+    .map { |ln| ln.split("|").map(&:split).map { |w| w.map{ _1.chars.sort } } }
+    .map { |sig, out|
+      vals = {}
+      vals[1] = sig.find{ _1.length == 2 }
+      vals[7] = sig.find{ _1.length == 3 }
+      vals[4] = sig.find{ _1.length == 4 }
+      vals[8] = sig.find{ _1.length == 7 }
+      vals[3] = sig.find{ _1.length == 5 and (vals[7] - _1).empty? }
+      vals[2] = sig.find{ _1.length == 5 and (_1 - vals[4]).length == 3 }
+      vals[5] = sig.find{ _1.length == 5 and vals[2] != _1 and vals[3] != _1 }
+      vals[9] = sig.find{ _1.length == 6 and (vals[4] - _1).empty? }
+      vals[0] = sig.find{ _1.length == 6 and not (vals[5] - _1).empty? }
+      vals[6] = sig.find{ _1.length == 6 and vals[0] != _1 and vals[9] != _1 }
+      invv = vals.map { |k, v| [v, k] }.to_h
+      out.map { |lst| invv[lst].to_s }.join.to_i
+    }.sum
+end
+
+
 # ###########################################################################
 #
 # 2021 DAY 7
