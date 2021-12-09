@@ -9,10 +9,63 @@
 
 # ###########################################################################
 #
-# 2021 DAY 8
+# 2021 DAY 9
 #
 # ###########################################################################
 
+# 522
+def d21091()
+  area = input(2109)
+    .split("\n").map { |l| l.chars.map(&:to_i) }
+
+  xmax, ymax = area.first.length, area.length
+  area = (0...ymax).map {
+    |y| (0...xmax).map { |x| [[x, y], area[y][x]] } }.flatten(1).to_h
+
+  def neighs(area, (x, y))
+    [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]
+    ].filter { |nx, ny| area.fetch([nx, ny], nil) }
+  end
+
+  area.keys.map { |c|
+    (area[c] < neighs(area, c).map {|n| area[n]}.min) ? area[c] + 1 : nil }
+    .compact.sum
+end
+
+# 916688
+def d21092()
+  area = input(2109)
+    .split("\n").map { |l| l.chars.map(&:to_i) }
+
+  xmax, ymax = area.first.length, area.length
+  area = (0...ymax).map {
+    |y| (0...xmax).map { |x| [[x, y], area[y][x]] } }.flatten(1).to_h
+
+  def neighs(area, (x, y))
+    [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]
+    ].filter { |nx, ny| area.fetch([nx, ny], nil) }
+  end
+
+  area.keys.map { |c| # -> lows
+    (area[c] < neighs(area, c).map {|n| area[n]}.min) ? c : nil }.compact
+    .map { |low| # -> super-basins
+      visited, tovisit = [], [low]
+      while not tovisit.empty?
+        current = tovisit.shift
+        visited.push(current)
+        tovisit.push(*neighs(area, current).filter { |n|
+          not (visited.include?(n) or tovisit.include?(n)) and
+            (area[current]...9).include?(area[n]) })
+      end; visited.length
+    }.sort.reverse.take(3).reduce(&:*)
+end
+
+
+# ###########################################################################
+#
+# 2021 DAY 8
+#
+# ###########################################################################
 
 # 473
 def d21081()
