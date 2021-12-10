@@ -9,6 +9,67 @@
 
 # ###########################################################################
 #
+# 2021 DAY 10
+#
+# ###########################################################################
+
+# <<~END
+#   {([(<{}[<>[]}>{[]{[(<()>
+#   [[<[([]))<([[{}[[()]]]
+#   [{[{({}]{}}([{[{{{}}([]
+#   [<(<(<(<{}))><([]([]()
+#   <{([([[(<>()){}]>(<<{{
+# END
+
+# 319233
+def d21101()
+  input(2110).split("\n")
+    .map { |line|
+      line.chars.reduce([]) { |acc, chr|
+        if acc.last == chr then acc.pop(); acc else
+          case chr
+          when "(" then acc.push(")")
+          when "[" then acc.push("]")
+          when "{" then acc.push("}")
+          when "<" then acc.push(">")
+          when ")" then break 3
+          when "]" then break 57
+          when "}" then break 1197
+          when ">" then break 25137
+          else break 0 end
+        end
+      }
+    }.filter { _1.class == Integer }.sum
+end
+
+# <<~END
+#   [({(<(())[]>[[{[]{<()<>>
+#   [(()[<>])]({[<{<<[]>>(
+#   (((({<>}<{<{<>}{[]{[]{}
+#   {<[[]]>}<{[{[{[]{()[[[]
+#   <{([{{}}[<[[[<>{}]]]>[]]
+# END
+
+# 1118976874
+def d21102()
+  input(2110).split("\n")
+    .map { |line|
+      line.chars.reduce([]) { |acc, chr|
+        close = {"(" => ")", "[" => "]", "{" => "}", "<" => ">"}
+        if acc.first == chr   then acc.drop(1)
+        elsif close.key?(chr) then acc.unshift(close[chr])
+        else break nil end
+      } }
+    .compact
+    .map { |chars|
+      chars.reduce(0) { |acc, chr|
+        (5 * acc) + {")" => 1, "]" => 2, "}" => 3, ">" => 4 }[chr]
+    } }.sort.tap { |lst| break lst[lst.length / 2] }
+end
+
+
+# ###########################################################################
+#
 # 2021 DAY 9
 #
 # ###########################################################################
