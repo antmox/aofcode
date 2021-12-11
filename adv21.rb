@@ -6,6 +6,83 @@
 
 # ##############################################################################
 
+# ###########################################################################
+#
+# 2021 DAY 11
+#
+# ###########################################################################
+
+# 5 4 8 3 1 4 3 2 2 3
+# 2 7 4 5 8 5 4 7 1 1
+# 5 2 6 4 5 5 6 1 7 3
+# 6 1 4 1 3 3 6 1 4 6
+# 6 3 5 7 3 8 5 4 7 8
+# 4 1 6 7 5 2 4 6 4 5
+# 2 1 7 6 8 4 1 7 2 1
+# 6 8 8 2 8 8 1 1 3 4
+# 4 8 4 6 8 4 8 5 5 4
+# 5 2 8 3 7 5 1 5 2 6
+
+# 1673
+def d21111()
+  @grid =
+    input(2111).split("\n").each_with_index.map { |l, y|
+      l.chars.each_with_index.map { |c, x| [[x, y], c.to_i]}
+    }.flatten(1).to_h
+
+  def neighs((x, y))
+    [[x - 1, y - 1], [x, y - 1], [x + 1, y - 1],
+     [x - 1, y    ],             [x + 1, y    ],
+     [x - 1, y + 1], [x, y + 1], [x + 1, y + 1]] & @grid.keys
+  end
+
+  def update(xy)
+    @grid[xy] = @grid[xy] + 1
+    neighs(xy).each{ update(_1) } if @grid[xy] == 10
+  end
+
+  def flash(xy)
+    @grid[xy] = 0 if @grid[xy] >= 10
+  end
+
+  (1..100).map {
+    @grid.each_key { |xy| update(xy) }
+    @grid.each_key { |xy| flash(xy) }
+    # debug("\n" + (0..9).map{ |y| (0..9).map { |x|
+    #    @grid[[x, y]] }.join(" ") }.join("\n") )
+    @grid.each_value.filter { _1 == 0 }.length
+  }.sum
+end
+
+# 279
+def d21112()
+  @grid =
+    input(2111).split("\n").each_with_index.map { |l, y|
+      l.chars.each_with_index.map { |c, x| [[x, y], c.to_i]}
+    }.flatten(1).to_h
+
+  def neighs((x, y))
+    [[x - 1, y - 1], [x, y - 1], [x + 1, y - 1],
+     [x - 1, y    ],             [x + 1, y    ],
+     [x - 1, y + 1], [x, y + 1], [x + 1, y + 1]] & @grid.keys
+  end
+
+  def update(xy)
+    @grid[xy] = @grid[xy] + 1
+    neighs(xy).each{ update(_1) } if @grid[xy] == 10
+  end
+
+  def flash(xy)
+    @grid[xy] = 0 if @grid[xy] >= 10
+  end
+
+  (1..).each { |n|
+    @grid.each_key { |xy| update(xy) }
+    @grid.each_key { |xy| flash(xy) }
+    break n if @grid.all? { |_, v| v == 0 }
+  }
+end
+
 
 # ###########################################################################
 #
@@ -448,4 +525,21 @@ end
 def debug(*args)
   puts "debug: " + args.map(&:to_s).join(" ")
   args.length == 1 ? args.first : args
+end
+
+
+# ##############################################################################
+
+fail if RUBY_VERSION.to_f < 2.7
+
+if $PROGRAM_NAME == __FILE__
+
+  proc, *args = ARGV
+
+  proc ||= private_methods.filter {_1.to_s.match?(/d\d{5}/) }.sort.last
+
+  debug("call #{proc} ( #{args} )")
+
+  p self.send(proc.to_sym, *args)
+
 end
