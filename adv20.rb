@@ -8,6 +8,36 @@
 
 # ###########################################################################
 #
+# 2020 DAY 10
+#
+# ###########################################################################
+
+# 2070
+def d20101()
+  adapt =
+    input(2010).split("\n").map(&:to_i).sort
+      .then { |l| l.push(l.last + 3) }
+
+  adapt.zip([0] + adapt).map {_1 - _2}.tally.values.reduce(:*)
+end
+
+# 24179327893504
+def d20102()
+  adapt =
+    input(2010).split("\n").map(&:to_i).sort
+
+  (adapt + [adapt.last + 3]).zip([0] + adapt)
+    .map { _1 - _2 }
+    .slice_when(&:!=)
+    .filter { |x| x.first == 1 }
+    .map(&:length)
+    .map { |x| [0, 1, 2, 4, 7][x] }
+    .reduce(&:*)
+end
+
+
+# ###########################################################################
+#
 # 2020 DAY 09
 #
 # ###########################################################################
@@ -19,6 +49,18 @@ def d20091()
 
   numbs.each_cons(prmbl + 1) { |*lst, nb|
     lst.combination(2).detect { |a, b| a + b == nb } || (break nb) }
+end
+
+# 9351526
+def d20092()
+  numbs, targt =
+    input(2009).split("\n").map(&:to_i), 69316178
+
+  (0..numbs.length).detect { |start|
+    stop = (start..numbs.length).detect { |stop|
+      numbs[start..stop].sum == targt }
+    break numbs[start..stop].minmax.sum if stop
+  }
 end
 
 
