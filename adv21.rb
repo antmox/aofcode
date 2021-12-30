@@ -10,6 +10,54 @@ require 'set'
 
 # ###########################################################################
 #
+# 2021 DAY 25
+#
+# ###########################################################################
+
+# v...>>.vv>
+# .vv>>.vv..
+# >>.>v>...v
+# >>v>>.>.v.
+# v>v.vv.v..
+# >.>>..v...
+# .vv..>.>v.
+# v.v..>>v.v
+# ....v..v.>
+
+# 412
+def d21251()
+  lines = input(2125).split("\n")
+  ymax, xmax = lines.length, lines.first.length
+  east, south =
+    lines.each_with_index.map { |l, y|
+      l.chars.each_with_index.map { |c, x| [c, x, y] if (c != ".") }
+    }.flatten(1).compact.partition { |k, _, _| k == ">"
+    }.then { |ls|  ls.map { |l| l.map { |x| x.drop(1) }.to_set } }
+
+  def step(east, south, xmax, ymax)
+    e_bk, e_ok = east.partition { |x, y|
+      nx, ny = (x + 1) % xmax, y
+      east.include?([nx, ny]) or south.include?([nx, ny]) }
+    e_ok.map! { |x, y| [(x + 1) % xmax, y] }
+    east.replace(e_ok + e_bk)
+
+    s_bk, s_ok = south.partition { |x, y|
+      nx, ny = x, (y + 1) % ymax
+      east.include?([nx, ny]) or south.include?([nx, ny]) }
+    s_ok.map! { |x, y| [x, (y + 1) % ymax] }
+    south.replace(s_ok + s_bk)
+  end
+
+  (1..).find {
+    oeast, osouth = east.to_a.to_set, south.to_a.to_set
+    step( east, south, xmax, ymax )
+    ( oeast == east and osouth == south )
+  }
+end
+
+
+# ###########################################################################
+#
 # 2021 DAY 24
 #
 # ###########################################################################
