@@ -30,6 +30,31 @@ import System.Environment (getArgs)
 -- :load adv22.hs
 -- readFile "inputs/2201.in" >>= return . solve2201_1
 
+-- -------------------------------------------------------------------
+-- -------------------------------------------------------------------
+--
+-- 2022 DAY 3
+--
+-- -------------------------------------------------------------------
+-- -------------------------------------------------------------------
+
+-- 8394
+solve2203_1 =
+  sum . map (priort . head . uncurry intersect . split2) . lines
+  where
+    split2 x = splitAt ((`div` 2) . length $ x) x
+    priort c
+      | inRange ('a', 'z') c = (ord c) - (ord 'a') + 1
+      | inRange ('A', 'Z') c = (ord c) - (ord 'A') + 27
+
+-- 2413
+solve2203_2 =
+  sum . map (priort . head . foldl1 intersect) . chunksOf 3 . lines
+  where
+    priort c
+      | inRange ('a', 'z') c = (ord c) - (ord 'a') + 1
+      | inRange ('A', 'Z') c = (ord c) - (ord 'A') + 27
+
 
 -- -------------------------------------------------------------------
 -- -------------------------------------------------------------------
