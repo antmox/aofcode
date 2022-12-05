@@ -30,10 +30,63 @@ import System.Environment (getArgs)
 -- :load adv22.hs
 -- readFile "inputs/2201.in" >>= return . solve2201_1
 
+
 -- -------------------------------------------------------------------
 -- -------------------------------------------------------------------
 --
--- 2022 DAY 3
+-- 2022 DAY 5
+--
+-- -------------------------------------------------------------------
+-- -------------------------------------------------------------------
+
+input2205 input =
+  (stacks, instrs)
+  where
+    stacks_ : instrs_ : _ =
+      splitOn "\n\n" $ input
+    stacks =
+      Seq.fromList
+      . map (filter isLetter)
+      . transpose
+      . map (map (head . drop 1) . chunksOf 4)
+      . lines $ stacks_
+    instrs =
+      map (map toInt . wordsBy (not . isDigit))
+      . lines $ instrs_
+
+-- (head . drop 1) == (flip (!!) 1)
+
+-- QNHWJVJZW
+solve2205_1 =
+  map head . toList . uncurry (foldl move) . input2205
+  where
+    move stacks (nb : from : to : _) = let
+      values  =
+        reverse $ take nb ((Seq.index) stacks (from - 1))
+      stacks1 =
+        Seq.update (from - 1) (drop nb ((Seq.index) stacks (from - 1))) stacks
+      stacks2 =
+        Seq.update (to   - 1) (values ++ ((Seq.index) stacks1 (to - 1))) stacks1
+      in stacks2
+
+-- BPCZJLFJW
+solve2205_2 =
+  map head . toList . uncurry (foldl move) . input2205
+  where
+    move stacks (nb : from : to : _) = let
+      values  =
+        take nb ((Seq.index) stacks (from - 1))
+      stacks1 =
+        Seq.update (from - 1) (drop nb ((Seq.index) stacks (from - 1))) stacks
+      stacks2 =
+        Seq.update (to   - 1) (values ++ ((Seq.index) stacks1 (to - 1))) stacks1
+      in stacks2
+
+
+-- -------------------------------------------------------------------
+-- -------------------------------------------------------------------
+--
+-- 2022 DAY 4
 --
 -- -------------------------------------------------------------------
 -- -------------------------------------------------------------------
@@ -149,11 +202,13 @@ solve2202_2 =
 
 -- 72240
 solve2201_1 =
-  maximum . map ( sum . map toInt . lines ) . splitOn "\n\n"
+  maximum . map ( sum . map toInt . lines )
+  . splitOn "\n\n"
 
 -- 210957
 solve2201_2 =
-  sum . take 3 . reverse . sort . map ( sum . map toInt . lines ) . splitOn "\n\n"
+  sum . take 3 . reverse . sort . map ( sum . map toInt . lines )
+  . splitOn "\n\n"
 
 
 -- -------------------------------------------------------------------
