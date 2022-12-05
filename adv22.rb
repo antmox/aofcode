@@ -5,6 +5,76 @@
 
 # ##############################################################################
 #
+# 2022 DAY 5
+#
+# ##############################################################################
+
+#     [D]
+# [N] [C]
+# [Z] [M] [P]
+#  1   2   3
+#
+# move 1 from 2 to 1
+# move 3 from 1 to 3
+# move 2 from 2 to 1
+# move 1 from 1 to 2
+
+module D2205
+  def inputd()
+    (stacks, instrs) =
+      input(2205).split("\n\n")
+    stacks =
+      stacks.split("\n").map{ |ln|
+        ln.chars.each_slice(4).map{ |s| s.at(1) }
+      }.transpose.map { |l| l.join.scan(/[A-Z]/) }
+    instrs =
+      instrs.split("\n").map{ |ln|
+        ln.scan(/\d+/).map(&:to_i) }
+    [ stacks, instrs ]
+  end
+end
+
+#                #         [Z]    #         [Z]    #         [Z]
+# [D]            #         [N]    #         [N]    #         [N]
+# [N] [C]        #     [C] [D]    # [M]     [D]    #         [D]
+# [Z] [M] [P]    #     [M] [P]    # [C]     [P]    # [C] [M] [P]
+#  1   2   3     #  1   2   3     #  1   2   3     #  1   2   3
+
+# QNHWJVJZW
+def d22051()
+  include D2205
+  inputd().then{ |stacks, instrs|
+    instrs.map{ |nb, from, to|
+      stacks[to - 1].unshift(
+        * stacks[from - 1].shift(nb).reverse
+      )
+      stacks
+    }.last.map(&:first).join
+  }
+end
+
+#                #         [D]    #         [Z]    #         [Z]
+# [D]            #         [N]    #         [N]    #         [N]
+# [N] [C]        #     [C] [Z]    # [C]     [D]    #         [D]
+# [Z] [M] [P]    #     [M] [P]    # [M]     [P]    # [M] [C] [P]
+#  1   2   3     #  1   2   3     #  1   2   3     #  1   2   3
+
+# BPCZJLFJW
+def d22052()
+  include D2205
+  inputd().then{ |stacks, instrs|
+    instrs.map{ |nb, from, to|
+      stacks[to - 1].unshift(
+        *stacks[from - 1].shift(nb)
+      )
+      stacks
+    }.last.map(&:first).join
+  }
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 4
 #
 # ##############################################################################
