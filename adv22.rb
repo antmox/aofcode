@@ -5,6 +5,53 @@
 
 # ##############################################################################
 #
+# 2022 DAY 6
+#
+# ##############################################################################
+
+# "mjqjpqmgbljsphdztnvjfqwrcgsmlb"    # 7  19
+# "bvwbjplbgvbhsrlpgdmjqwftvncz"      # 5  23
+# "nppdvjthqldpwncqszvftbrmjlhg"      # 6  23
+# "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg" # 10 29
+# "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"  # 11 26
+
+def f2206(input, size)
+  input
+    .chars
+    .each_cons(size)
+    .to_a
+    .find_index{ |l| l.uniq.length == size }
+    .then{ _1 + size }
+end
+
+def d22060()
+  <<~END
+    mjqjpqmgbljsphdztnvjfqwrcgsmlb
+    bvwbjplbgvbhsrlpgdmjqwftvncz
+    nppdvjthqldpwncqszvftbrmjlhg
+    nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg
+    zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw
+  END
+  .split.map{ |line|
+    [ f2206(line, 4), f2206(line, 14) ]
+  }
+end
+
+# 1647
+def d22061()
+  input(2206)
+    .then{ f2206(_1, 4) }
+end
+
+# 2447
+def d22062()
+  input(2206)
+    .then{ f2206(_1, 14) }
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 5
 #
 # ##############################################################################
@@ -44,12 +91,10 @@ end
 def d22051()
   include D2205
   inputd().then{ |stacks, instrs|
-    instrs.map{ |nb, from, to|
-      stacks[to - 1].unshift(
-        * stacks[from - 1].shift(nb).reverse
-      )
+    instrs.inject(stacks) { |stacks, (nb, from, to)|
+      stacks[to - 1].unshift(*stacks[from - 1].shift(nb).reverse)
       stacks
-    }.last.map(&:first).join
+    }.map(&:first).join
   }
 end
 
@@ -63,12 +108,10 @@ end
 def d22052()
   include D2205
   inputd().then{ |stacks, instrs|
-    instrs.map{ |nb, from, to|
-      stacks[to - 1].unshift(
-        *stacks[from - 1].shift(nb)
-      )
+    instrs.inject(stacks) { |stacks, (nb, from, to)|
+      stacks[to - 1].unshift(*stacks[from - 1].shift(nb))
       stacks
-    }.last.map(&:first).join
+    }.map(&:first).join
   }
 end
 
