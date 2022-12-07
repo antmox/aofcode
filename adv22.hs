@@ -30,6 +30,38 @@ import System.Environment (getArgs)
 -- :load adv22.hs
 -- readFile "inputs/2201.in" >>= return . solve2201_1
 
+
+-- -------------------------------------------------------------------
+-- -------------------------------------------------------------------
+--
+-- 2022 DAY 7
+--
+-- -------------------------------------------------------------------
+-- -------------------------------------------------------------------
+
+walk2207 (cwd, dsz) line @ ("$" : "cd" : d : [])
+  | d == "/"  = ([]      , dsz)
+  | d == ".." = (tail cwd, dsz)
+  | otherwise = (d : cwd , dsz)
+walk2207 (cwd, dsz) line @ (fwd @ (l : _) : _)
+  | not . isDigit $ l = (cwd, dsz)
+  | otherwise         = (cwd, foldl (\dsz dirs ->
+       (M.insert dirs ((toInt fwd) + (M.findWithDefault 0 dirs dsz)) dsz)
+                         ) dsz . tails $ cwd)
+
+-- 1749646
+solve2207_1 =
+  sum . filter (< 100000) .
+  M.elems . snd . foldl walk2207 ([], M.empty) . map words . lines
+
+-- 1498966
+solve2207_2 input =
+  minimum . filter (> needed) . M.elems $ dsz
+  where
+    dsz = snd . foldl walk2207 ([], M.empty) . map words . lines $ input
+    needed = 30000000 - (70000000 - ((M.!) dsz []))
+
+
 -- -------------------------------------------------------------------
 -- -------------------------------------------------------------------
 --
