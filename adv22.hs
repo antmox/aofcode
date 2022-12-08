@@ -30,6 +30,69 @@ import System.Environment (getArgs)
 -- :load adv22.hs
 -- readFile "inputs/2201.in" >>= return . solve2201_1
 
+-- -------------------------------------------------------------------
+-- -------------------------------------------------------------------
+--
+-- 2022 DAY 8
+--
+-- -------------------------------------------------------------------
+-- -------------------------------------------------------------------
+
+-- 3 0 3 7 3      # . . . . .
+-- 2 5 5 1 2      # . . .   .
+-- 6 5 3 3 2  ->  # . .   . .  ->  21
+-- 3 3 5 4 9      # .   .   .
+-- 3 5 3 9 0      # . . . . .
+
+isvisibletree grid cmax (x, y) =
+  -- visible from W
+  (all (\nx -> smaller nx y) [  0  ..(x-1 )]) ||
+  -- visible from E
+  (all (\nx -> smaller nx y) [(x+1)..(cmax)]) ||
+  -- visible from N
+  (all (\ny -> smaller x ny) [  0  ..(y-1 )]) ||
+  -- visible from S
+  (all (\ny -> smaller x ny) [(y+1)..(cmax)])
+  where smaller nx ny = (((M.!) grid (x, y)) > ((M.!) grid (nx, ny)))
+
+-- 1870
+solve2208_1 input =
+  length . filter (isvisibletree grid cmax) . M.keys $ grid
+  where
+    grid = M.fromList . concat
+      . zipWith (\y -> map (\(x, v) -> ((x, y), v))) [0..]
+      . map (zip [0..]) . lines $ input
+    cmax = fst . maximum . M.keys $ grid
+
+-- 3 0 3 7 3      # . . . . .
+-- 2 5 5 1 2      # . 1 4 1 .
+-- 6 5 3 3 2  ->  # . 6 1 2 .  ->  8
+-- 3 3 5 4 9      # . 1 8 3 .
+-- 3 5 3 9 0      # . . . . .
+
+-- 517440
+scenicscore grid cmax (x, y)
+  | (x == 0 || x == cmax || y == 0 || y == cmax) = 0
+  | otherwise =
+      foldl1 (*) . map (succ . length) $ [
+        -- looking W
+        takeWhile (\nx -> smaller nx y) . reverse $ [  1  ..(x-1   )],
+        -- looking E
+        takeWhile (\nx -> smaller nx y)           $ [(x+1)..(cmax-1)],
+        -- looking N
+        takeWhile (\ny -> smaller x ny) . reverse $ [  1  ..(y-1   )],
+        -- looking S
+        takeWhile (\ny -> smaller x ny)           $ [(y+1)..(cmax-1)] ]
+  where smaller nx ny = (((M.!) grid (x, y)) > ((M.!) grid (nx, ny)))
+
+solve2208_2 input =
+  maximum . map (scenicscore grid cmax) . M.keys $ grid
+  where
+    grid = M.fromList . concat
+      . zipWith (\y -> map (\(x, v) -> ((x, y), v))) [0..]
+      . map (zip [0..]) . lines $ input
+    cmax = fst . maximum . M.keys $ grid
+
 
 -- -------------------------------------------------------------------
 -- -------------------------------------------------------------------
