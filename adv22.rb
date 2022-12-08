@@ -5,6 +5,65 @@
 
 # ##############################################################################
 #
+# 2022 DAY 8
+#
+# ##############################################################################
+
+# 3 0 3 7 3      # . . . . .
+# 2 5 5 1 2      # . . .   .
+# 6 5 3 3 2  ->  # . .   . .  ->  21
+# 3 3 5 4 9      # .   .   .
+# 3 5 3 9 0      # . . . . .
+
+# 1870
+def d22081()
+  grid, xmax, ymax =
+    input(2208).split("\n").each_with_index.map { |l, y|
+      l.chars.each_with_index.map { |c, x| [[x, y], c.to_i]}
+    }.flatten(1).to_h.then { [_1] + _1.keys.max }
+  #
+  grid.keys.map { |x, y|
+    # visible from W
+    (0..(x-1)).to_a.all?      { |nx| grid[[x, y]] > grid[[nx, y]] } or
+    # visible from E
+    ((x+1)..(xmax)).to_a.all? { |nx| grid[[x, y]] > grid[[nx, y]] } or
+    # visible from N
+    (0..(y-1)).to_a.all?      { |ny| grid[[x, y]] > grid[[x, ny]] } or
+    # visible from S
+    ((y+1)..(ymax)).to_a.all? { |ny| grid[[x, y]] > grid[[x, ny]] }
+  }.filter { _1 }.length
+end
+
+# 3 0 3 7 3      # . . . . .
+# 2 5 5 1 2      # . 1 4 1 .
+# 6 5 3 3 2  ->  # . 6 1 2 .  ->  8
+# 3 3 5 4 9      # . 1 8 3 .
+# 3 5 3 9 0      # . . . . .
+
+# 517440
+def d22082()
+  grid, xmax, ymax =
+    input(2208).split("\n").each_with_index.map { |l, y|
+      l.chars.each_with_index.map { |c, x| [[x, y], c.to_i]}
+    }.flatten(1).to_h.then { [_1] + _1.keys.max }
+  #
+  grid.keys.map { |x, y|
+    next 0 if (x == 0) or (y == 0) or (x == xmax) or (y == ymax)
+    # looking W
+    [ (1..(x-1)).to_a.reverse.take_while{|nx| grid[[x, y]] > grid[[nx, y]] },
+    # looking E
+      ((x+1)..(xmax-1)).to_a.take_while {|nx| grid[[x, y]] > grid[[nx, y]] },
+    # looking N
+      (1..(y-1)).to_a.reverse.take_while{|ny| grid[[x, y]] > grid[[x, ny]] },
+    # looking S
+      ((y+1)..(ymax-1)).to_a.take_while {|ny| grid[[x, y]] > grid[[x, ny]] }
+    ].map { _1.length.succ }.reduce(&:*)
+  }.max
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 7
 #
 # ##############################################################################
