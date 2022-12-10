@@ -12,16 +12,16 @@
   [``adv17.hs``](oldevents/adv17.hs)
 
 - 2018 :star::star:
-  [``adv18.hs``](oldevents/adv18.hs) [``adv18.py``](oldevents/adv18.py)
+  [``adv18.hs``](oldevents/adv18.hs)
 
 - 2019 :star::star:
-  [``adv19.py``](oldevents/adv19.py) [``adv19.hs``](oldevents/adv19.hs)
+  [``adv19.py``](oldevents/adv19.py)
 
 - 2020 :star::star:
-  [``adv20.py``](oldevents/adv20.py) [``adv20.hs``](oldevents/adv20.hs) [``adv20.rb``](oldevents/adv20.rb)
+  [``adv20.py``](oldevents/adv20.py)
 
 - 2021 :star::star:
-  [``adv21.rb``](adv21.rb) [``adv21.hs``](adv21.hs)
+  [``adv21.rb``](adv21.rb)
 
 - 2022 :star::star:
-  [``adv22.rb``](adv22.rb) [``adv22.hs``](adv22.hs)
+  [``adv22.rb``](adv22.rb)
