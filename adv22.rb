@@ -20,15 +20,16 @@ require 'set'
 def regxs(input)
   input(input)
     .split("\n")
-    .reduce([1, [1]]) { |(regx, values), instr|
+    .reduce([1]) { |values, instr|
+      regx = values.last
       case instr
       when /noop/ then
-        [regx, values << regx]
+        values << regx
       when /addx ([-0-9]+)/ then
-        regn = regx + $1.to_i
-        [regn, values << regx << regn]
+        nregx = regx + $1.to_i
+        values << regx << nregx
       end
-    }.last
+    }
 end
 
 # 13220
