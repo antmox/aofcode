@@ -12,36 +12,34 @@ require 'set'
 
 def updatehead(xh, yh, dr)
   case dr
-  when "U" then yh = yh + 1
-  when "D" then yh = yh - 1
-  when "R" then xh = xh + 1
-  when "L" then xh = xh - 1
+  when "U" then [xh, yh + 1]
+  when "D" then [xh, yh - 1]
+  when "R" then [xh + 1, yh]
+  when "L" then [xh - 1, yh]
   end
-  [xh, yh]
 end
 
 def updateknot(xh, yh, xt, yt)
-  if    yh == yt     and xh - xt ==  2 then xt = xt + 1
-  elsif yh == yt     and xh - xt == -2 then xt = xt - 1
-  elsif xh == xt     and yh - yt ==  2 then yt = yt + 1
-  elsif xh == xt     and yh - yt == -2 then yt = yt - 1
+  if    xh == xt + 2 and yh == yt     then [xt + 1, yt    ]
+  elsif xh == xt - 2 and yh == yt     then [xt - 1, yt    ]
 
-  elsif yh == yt + 1 and xh == xt + 2  then yt = yt + 1; xt = xt + 1
-  elsif yh == yt + 1 and xh == xt - 2  then yt = yt + 1; xt = xt - 1
-  elsif yh == yt - 1 and xh == xt + 2  then yt = yt - 1; xt = xt + 1
-  elsif yh == yt - 1 and xh == xt - 2  then yt = yt - 1; xt = xt - 1
+  elsif xh == xt     and yh == yt + 2 then [xt    , yt + 1]
+  elsif xh == xt     and yh == yt - 2 then [xt    , yt - 1]
 
-  elsif yh == yt + 2 and xh == xt + 1  then yt = yt + 1; xt = xt + 1
-  elsif yh == yt + 2 and xh == xt - 1  then yt = yt + 1; xt = xt - 1
-  elsif yh == yt - 2 and xh == xt + 1  then yt = yt - 1; xt = xt + 1
-  elsif yh == yt - 2 and xh == xt - 1  then yt = yt - 1; xt = xt - 1
+  elsif xh == xt + 2 and yh == yt + 1 then [xt + 1, yt + 1]
+  elsif xh >= xt + 1 and yh == yt + 2 then [xt + 1, yt + 1]
 
-  elsif yh == yt + 2 and xh == xt + 2  then yt = yt + 1; xt = xt + 1
-  elsif yh == yt + 2 and xh == xt - 2  then yt = yt + 1; xt = xt - 1
-  elsif yh == yt - 2 and xh == xt + 2  then yt = yt - 1; xt = xt + 1
-  elsif yh == yt - 2 and xh == xt - 2  then yt = yt - 1; xt = xt - 1
+  elsif xh == xt - 2 and yh == yt + 1 then [xt - 1, yt + 1]
+  elsif xh <= xt - 1 and yh == yt + 2 then [xt - 1, yt + 1]
+
+  elsif xh == xt + 2 and yh == yt - 1 then [xt + 1, yt - 1]
+  elsif xh >= xt + 1 and yh == yt - 2 then [xt + 1, yt - 1]
+
+  elsif xh == xt - 2 and yh == yt - 1 then [xt - 1, yt - 1]
+  elsif xh <= xt - 1 and yh == yt - 2 then [xt - 1, yt - 1]
+
+  else [xt, yt]
   end
-  [xt, yt]
 end
 
 # . . # # . .
@@ -69,6 +67,13 @@ def d22091()
 
   tail_xys.length
 end
+
+# moves.reduce([0, 0, 0, 0, Set[]]) { |(xh, yh, xt, yt, ps), (dr, nb)|
+#   nb.to_i.times do
+#     xh, yh = updatehead(xh, yh, dr)
+#     xt, yt = updateknot(xh, yh, xt, yt)
+#     ps << [xt, yt]
+#   end; [xh, yh, xt, yt, ps] }.last.length
 
 # . . . . . . . . . . . . . . . . . . . . . . . . . .
 # . . . . . . . . . . . . . . . . . . . . . . . . . .
