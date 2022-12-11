@@ -6,6 +6,77 @@ require 'set'
 
 # ##############################################################################
 #
+# 2022 DAY 11
+#
+# ##############################################################################
+
+# Monkey 0:
+#   Starting items: 79, 98
+#   Operation: new = old * 19
+#   Test: divisible by 23
+#     If true: throw to monkey 2
+#     If false: throw to monkey 3
+
+def getmonkeys()
+  input(2211)
+    .split("\n\n")
+    .map { |lines|
+      (_, *items, _, _, opr, op2, opdiv, dst1, dst0) =
+        lines.scan(/[0-9]+|old|[*+=]/)
+      { items: items.map(&:to_i), opr: opr, op2: op2,
+        opdiv: opdiv.to_i, dst1: dst1.to_i, dst0: dst0.to_i,
+        nbins: 0 }
+    }
+end
+
+def worrylevel(op1, opr, op2)
+  op2 = op2 == "old" ? op1 : op2.to_i
+  opr == "+" ? op1 + op2 : opr == "*" ? op1 * op2 : fail
+end
+
+# 54036
+def d22111()
+  monkeys = getmonkeys()
+
+  for _ in (1..20) do
+    for monkey in monkeys do
+      for _ in 1..monkey[:items].length do
+        monkey[:nbins] += 1
+        item = monkey[:items].shift
+        wlvl = worrylevel(item, monkey[:opr], monkey[:op2]) / 3
+        dest = (wlvl % monkey[:opdiv] == 0) ? monkey[:dst1] : monkey[:dst0]
+        monkeys[dest][:items] << wlvl
+      end
+    end
+  end
+
+  monkeys.map { _1[:nbins] }.sort.reverse.take(2).reduce(&:*)
+end
+
+# 13237873355
+def d22112()
+  monkeys = getmonkeys()
+
+  lcm = monkeys.map { _1[:opdiv] }.reduce(&:lcm)
+
+  for _ in 1..10000 do
+    for monkey in monkeys do
+      for _ in 1..monkey[:items].length do
+        monkey[:nbins] += 1
+        item = monkey[:items].shift
+        wlvl = worrylevel(item, monkey[:opr], monkey[:op2]) % lcm
+        dest = (wlvl % monkey[:opdiv] == 0) ? monkey[:dst1] : monkey[:dst0]
+        monkeys[dest][:items] << wlvl
+      end
+    end
+  end
+
+  monkeys.map { _1[:nbins] }.sort.reverse.take(2).reduce(&:*)
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 10
 #
 # ##############################################################################
