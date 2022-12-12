@@ -6,6 +6,68 @@ require 'set'
 
 # ##############################################################################
 #
+# 2022 DAY 12
+#
+# ##############################################################################
+
+# Sabqponm
+# abcryxxl
+# accszExk
+# acctuvwj
+# abdefghi
+
+# v..v<<<<
+# >v.vv<<^
+# .>vv>E^^
+# ..v>>>^^
+# ..>>>>>^
+
+def heightmap()
+  input(2212)
+    .split("\n")
+    .each_with_index.map { |l, y|
+      l.chars.each_with_index.map { |c, x| [[x, y], c] }
+    }.flatten(1).to_h
+end
+
+def hike(hmap, starts, end_)
+  hval =-> { _1 == "S" ? "a".ord : _1 == "E" ? "z".ord : _1.ord }
+
+  visiting, tovisit = starts, starts.map { [_1, 0] }
+
+  while not tovisit.empty?
+    (x, y), n = tovisit.shift
+
+    return n if [x, y] == end_
+
+    possible_nexts =
+      [ [x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1] ]
+        .filter { |ncrd| hmap.key?(ncrd) }
+        .filter { |ncrd| hval.(hmap[ncrd]) <= hval.(hmap[[x, y]]) + 1 }
+        .filter { |ncrd| not visiting.include?(ncrd) }
+
+    visiting.concat( possible_nexts )
+    tovisit.concat( possible_nexts.map {[_1, n + 1]} )
+  end
+end
+
+# 481
+def d22121()
+  hmap = heightmap()
+  start, end_ = hmap.key("S"), hmap.key("E")
+  hike(hmap, [start], end_)
+end
+
+# 480
+def d22122()
+  hmap = heightmap()
+  starts, end_ = hmap.filter { |_, h| h == "a" }.keys, hmap.key("E")
+  hike(hmap, starts, end_)
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 11
 #
 # ##############################################################################
