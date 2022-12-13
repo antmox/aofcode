@@ -6,6 +6,54 @@ require 'set'
 
 # ##############################################################################
 #
+# 2022 DAY 13
+#
+# ##############################################################################
+
+# sorted   -> negative
+# equal    -> 0
+# unsorted -> positive
+def packetscmp(v1, v2)
+  case [v1, v2]
+  # both values are integer
+  in Integer, Integer then v1 - v2
+  # exactly one value is an integer
+  in [Integer, Array] then packetscmp([v1], v2)
+  in [Array, Integer] then packetscmp(v1, [v2])
+  # both values are lists
+  in [], []           then  0
+  in [], Array        then -1
+  in Array, []        then  1
+  in Array, Array     then
+    (h1, *t1), (h2, *t2) = v1, v2
+    cmp = packetscmp(h1, h2)
+    cmp != 0 ? cmp : packetscmp(t1, t2)
+  end
+end
+
+# 5843
+def d22131()
+  input(2213)
+    .split()
+    .map { eval(_1) }
+    .each_slice(2)
+    .map{ packetscmp(_1, _2) }
+    .each_with_index.filter_map { |v, i| i + 1 if v < 0 }.sum
+end
+
+# 26289
+def d22132()
+  input(2213)
+    .split()
+    .map { eval(_1) }
+    .then { _1 + [[[2]]] + [[[6]]] }
+    .sort { packetscmp(_1, _2) }
+    .then { (_1.find_index([[2]]) + 1) * (_1.find_index([[6]]) + 1) }
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 12
 #
 # ##############################################################################
@@ -33,20 +81,21 @@ end
 def hike(hmap, starts, end_)
   hval =-> { _1 == "S" ? "a".ord : _1 == "E" ? "z".ord : _1.ord }
 
-  visiting, tovisit = starts, starts.map { [_1, 0] }
+  visited, tovisit = [], starts.map { [_1, 0] }
 
   while not tovisit.empty?
     (x, y), n = tovisit.shift
 
     return n if [x, y] == end_
+    visited.push( [x, y] )
 
     possible_nexts =
       [ [x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1] ]
         .filter { |ncrd| hmap.key?(ncrd) }
         .filter { |ncrd| hval.(hmap[ncrd]) <= hval.(hmap[[x, y]]) + 1 }
-        .filter { |ncrd| not visiting.include?(ncrd) }
+        .filter { |ncrd| not visited.include?(ncrd) }
+        .filter { |ncrd| not tovisit.map(&:first).include?(ncrd) }
 
-    visiting.concat( possible_nexts )
     tovisit.concat( possible_nexts.map {[_1, n + 1]} )
   end
 end
