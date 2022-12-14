@@ -6,6 +6,127 @@ require 'set'
 
 # ##############################################################################
 #
+# 2022 DAY 14
+#
+# ##############################################################################
+
+# 498,4 -> 498,6 -> 496,6
+# 503,4 -> 502,4 -> 502,9 -> 494,9
+
+# ......+...
+# ..........
+# ..........
+# ..........
+# ....#...##
+# ....#...#.
+# ..###...#.
+# ........#.
+# ........#.
+# #########.
+
+def showscan(scan, sand, src)
+  all = (scan + sand + [src])
+  (xmin, xmax) = all.map(&:first).minmax
+  (ymin, ymax) = all.map(&:last).minmax
+  (ymin..ymax).map { |y|
+    (xmin..xmax).map { |x|
+      scan.include?([x, y]) ? "#" :
+      sand.include?([x, y]) ? "o" :
+      [x, y] == src         ? "+" : "."
+    }.join }.join("\n")
+end
+
+def scanrock()
+  input(2214.0)
+    .split("\n").map{ |line|
+      line.scan(/\d+/).map(&:to_i)
+      .each_slice(2).each_cons(2).map { |(x1, y1), (x2, y2)|
+        (xmin, xmax), (ymin, ymax) = [x1, x2].minmax, [y1, y2].minmax
+        if y1 == y2 then
+          (xmin..xmax).map { |x| [x, y1] }
+        elsif x1 == x2 then
+          (ymin..ymax).map { |y| [x1, y] }
+        else fail end
+    } }.flatten(2).uniq
+end
+
+def sandfall(all, ymax, srcd)
+  x, y = srcd
+  while true
+    if y == ymax
+      return [x, y] # void/floor reached
+    elsif not all.include?([x, y + 1])
+      x, y = x, y + 1
+    elsif not all.include?([x - 1, y + 1])
+      x, y = x - 1, y + 1
+    elsif not all.include?([x + 1, y + 1])
+      x, y = x + 1, y + 1
+    elsif [x, y] == srcd
+      return [x, y] # source blocked
+    else
+      return [x, y] # blocked
+    end
+  end
+end
+
+# .......+...
+# ...........
+# .......o...
+# ......ooo..
+# .....#ooo##
+# ....o#ooo#.
+# ...###ooo#.
+# .....oooo#.
+# ..o.ooooo#.
+# o#########.
+
+# 1330
+def d22141()
+  scan = scanrock()
+  ymax = scan.map(&:last).max
+  srcd = [500, 0]
+
+  all = scan.to_set
+  while true
+    nx, ny = sandfall(all, ymax, srcd)
+    all << [nx, ny]
+    break if ny == ymax
+  end
+  # puts showscan(scan, all.to_a - scan, srcd)
+  all.length - scan.length - 1
+end
+
+# ..........o..........
+# .........ooo.........
+# ........ooooo........
+# .......ooooooo.......
+# ......oo#ooo##o......
+# .....ooo#ooo#ooo.....
+# ....oo###ooo#oooo....
+# ...oooo.oooo#ooooo...
+# ..oooooooooo#oooooo..
+# .ooo#########ooooooo.
+# ooooo.......ooooooooo
+
+# 26139
+def d22142()
+  scan = scanrock()
+  ymax = scan.map(&:last).max
+  srcd = [500, 0]
+
+  all = scan.to_set
+  while true
+    nx, ny = sandfall(all, ymax + 1, srcd)
+    all << [nx, ny]
+    break if [nx, ny] == srcd
+  end
+  # puts showscan(scan, all.to_a - scan, srcd)
+  all.length - scan.length
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 13
 #
 # ##############################################################################
@@ -18,8 +139,8 @@ def packetscmp(v1, v2)
   # both values are integer
   in Integer, Integer then v1 - v2
   # exactly one value is an integer
-  in [Integer, Array] then packetscmp([v1], v2)
-  in [Array, Integer] then packetscmp(v1, [v2])
+  in Integer, Array   then packetscmp([v1], v2)
+  in Array, Integer   then packetscmp(v1, [v2])
   # both values are lists
   in [], []           then  0
   in [], Array        then -1
