@@ -6,6 +6,74 @@ require 'set'
 
 # ##############################################################################
 #
+# 2022 DAY 16
+#
+# ##############################################################################
+
+# Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
+# Valve BB has flow rate=13; tunnels lead to valves CC, AA
+# Valve CC has flow rate=2; tunnels lead to valves DD, BB
+# Valve DD has flow rate=20; tunnels lead to valves CC, AA, EE
+# Valve EE has flow rate=3; tunnels lead to valves FF, DD
+# Valve FF has flow rate=0; tunnels lead to valves EE, GG
+# Valve GG has flow rate=0; tunnels lead to valves FF, HH
+# Valve HH has flow rate=22; tunnel leads to valve GG
+# Valve II has flow rate=0; tunnels lead to valves AA, JJ
+# Valve JJ has flow rate=21; tunnel leads to valve II
+
+def valvemoveall(scan, pos, opened, timeleft, followed=false)
+  # now let the elephant play !!
+  return valvemoveall(scan, "AA", opened, 26) if timeleft == 0 and followed
+  # no one to follow
+  return 0 if timeleft == 0 and not followed
+
+  # position already known
+  match = @valvecache.fetch([pos, opened, timeleft, followed], nil)
+  return match if match
+
+  results = []
+  if scan[pos][:flow] > 0 and not opened.include?(pos) then
+    results << (
+      ((timeleft - 1) * scan[pos][:flow]) +
+      valvemoveall(scan, pos, (opened | Set[pos]), timeleft - 1, followed))
+  end
+  for succ in scan[pos][:nexts] do
+    results << valvemoveall(scan, succ, opened, timeleft - 1, followed)
+  end
+
+  @valvecache[[pos, opened, timeleft, followed]] = results.max
+end
+
+# 1728 - took 11s
+def d22161()
+  scan =
+    input(2216).split("\n")
+    .map { |line|
+      vnum, flow, *nexts = line.scan(/[0-9]+|[A-Z][A-Z]+/)
+      [vnum, { flow: flow.to_i, nexts: nexts.to_set }]
+    }.to_h
+
+  @valvecache = {}
+  valvemoveall(scan, "AA", Set[], 30)
+end
+
+# 2304 - took 440s!
+def d22162()
+  scan =
+    input(2216).split("\n")
+    .map { |line|
+      vnum, flow, *nexts = line.scan(/[0-9]+|[A-Z][A-Z]+/)
+      [vnum, { flow: flow.to_i, nexts: nexts.to_set }]
+    }.to_h
+
+  @valvecache = {}
+
+  valvemoveall(scan, "AA", Set[], 26, true)
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 15
 #
 # ##############################################################################
