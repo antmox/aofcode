@@ -6,6 +6,139 @@ require 'set'
 
 # ##############################################################################
 #
+# 2022 DAY 17
+#
+# ##############################################################################
+
+#
+#  ....  ....  ..#.  #...  ....
+#  ....  .#..  ..#.  #...  ....
+#  ....  ###.  ..#.  #...  ##..
+#  ####  .#..  ###.  #...  ##..
+#
+#  0     1     2     3     4
+
+@shapes = [
+  [ [0, 0], [1, 0], [2, 0], [3, 0]         ],
+  [ [1, 0], [0, 1], [1, 1], [2, 1], [1, 2] ],
+  [ [0, 0], [1, 0], [2, 0], [2, 1], [2, 2] ],
+  [ [0, 0], [0, 1], [0, 2], [0, 3]         ],
+  [ [0, 0], [1, 0], [0, 1], [1, 1]         ] ]
+
+# |....#..|
+# |....#..|
+# |....#..|
+# |@@.###.|
+# |@@.####|
+# |.###.#.|
+# |..####.|
+# |..#....|
+# |..#...#|
+# |..#...#|
+# |..#####|
+# |#####..|
+# |##.#...|
+# |.####..|
+# +-------+
+
+def showtower(tower, shape)
+  ymax = (tower | shape.to_set).map(&:last).max
+  towr = ymax.downto(-1).map { |y|
+    (-1).upto(7).map { |x|
+      (((x == -1) or (x == 7)) and (y == -1)) ? "+"
+      : ((x == -1) or (x == 7))               ? "|"
+      : (y == -1)                             ? "-"
+      : (tower.include?([x, y]))              ? "#"
+      : (shape.include?([x, y]))              ? "@"
+      : "." }.join
+  }.join("\n")
+  puts towr
+end
+
+# jets, tower, tmax, nbrnd, nbshp -> newtower, newtmax, newnbrnd
+def fallrock(jets, tower, tmax, nrnd, nshp)
+  shpn = nshp % @shapes.length       # shape type number
+  newr = @shapes[shpn].map { |x, y|  # coords of new rock
+    [x + 2, y + tmax + 4] }
+
+  while true do
+    # first, apply horizontal jet move if possible
+    jetn = jets[nrnd % jets.length]  # jet offset
+    nrnd += 1
+
+    new2 = newr.map { |x, y| [x + jetn, y] }
+    possible = new2.all? { |x, y|
+      (x >= 0) and (x <= 6) and not tower.include?([x, y]) }
+    newr = new2 if possible
+
+    # then, fall down one level if possible
+    new3 = newr.map { |x, y| [x, y - 1] }
+    possible = new3.all? { |x, y|
+      (y >= 0) and not tower.include?([x, y]) }
+    newr = new3 if possible
+
+    break if not possible
+  end
+
+  tower |= newr.to_set
+  tmax = tower.map(&:last).max
+  [tower, tmax, nrnd]
+end
+
+# 3133
+def d22171()
+  jets =
+    input(2217).chars.map{ _1 == ">" ? 1 : -1 }
+
+  towr, tmax, nrnd, nshp = Set[], -1, 0, 0
+  while true do
+    towr, tmax, nrnd = fallrock(jets, towr, tmax, nrnd, nshp)
+    nshp += 1
+    break if nshp == 2022
+  end
+  tmax + 1
+end
+
+# wrong frontier but it probably does not matter
+# -> it should work anyway if there is at least one cycle on one of these
+# convex frontiers
+def getfrontier(tower, tmax)
+  tower
+    .group_by { |x, y| x }
+    .map { |x, cells| [x, tmax - cells.map(&:last).max] }
+    .sort.map(&:last)
+end
+
+# 1547953216393
+def d22172()
+  jets =
+    input(2217).chars.map{ _1 == ">" ? 1 : -1 }
+  maxshpn = 1000000000000
+  cache = {} # [ frontier, jetpos, shapepos ] -> [ shapenum, tmax ]
+
+  towr, tmax, nrnd, nshp = Set[], -1, 0, 0
+  while true do
+    towr, tmax, nrnd, _nshp = fallrock(jets, towr, tmax, nrnd, nshp)
+
+    # position already known ? ###################
+    cachekey = [
+      getfrontier(towr, tmax), (nshp % @shapes.length), (nrnd % jets.length)]
+    match = cache.fetch(cachekey, nil)
+    if match then
+      prvnshp, prvtmax = match; cycleln = nshp - prvnshp
+      return (prvtmax + (tmax - prvtmax) * (maxshpn - prvnshp) / cycleln) if
+        ((maxshpn - prvnshp) % cycleln == 0)
+    end
+    cache[cachekey] = [nshp, tmax] if not match
+    # ############################################
+
+    nshp += 1
+  end
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 16
 #
 # ##############################################################################
