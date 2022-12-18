@@ -6,6 +6,54 @@ require 'set'
 
 # ##############################################################################
 #
+# 2022 DAY 18
+#
+# ##############################################################################
+
+def neighbors((x, y, z))
+  [ [x - 1, y, z], [x + 1, y, z],
+    [x, y - 1, z], [x, y + 1, z],
+    [x, y, z - 1], [x, y, z + 1] ]
+end
+
+# 4450
+def d22181()
+  cubes =
+    input(2218).scan(/[0-9]+/).map(&:to_i).each_slice(3).to_set
+  cubes.map { |cube|
+    6 - neighbors(cube).filter{ |n| cubes.include?(n) }.length
+  }.sum
+end
+
+# 2564
+def d22182()
+  cubes =
+    input(2218).scan(/[0-9]+/).map(&:to_i).each_slice(3).to_set
+
+  # list non-trapped neighbors
+  dmax = cubes.to_a.flatten.max + 1
+  reachbs, tovisit = Set[], [[dmax, dmax, dmax]]
+  while not tovisit.empty?
+    cube = tovisit.shift
+    reachbs.add(cube)
+    tovisit.push(
+      *neighbors(cube)
+         .filter { |ngh| ngh.all? { |c| (-1..dmax).cover?(c) } }
+         .filter { |ngh| not cubes.include?(ngh) }
+         .filter { |ngh| not tovisit.include?(ngh) }
+         .filter { |ngh| not reachbs.include?(ngh) } )
+  end
+  #
+
+  cubes.map { |cube|
+    6 - neighbors(cube).filter{ |n|
+      cubes.include?(n) or not reachbs.include?(n) }.length
+  }.sum
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 17
 #
 # ##############################################################################
