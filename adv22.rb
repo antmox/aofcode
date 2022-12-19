@@ -6,6 +6,161 @@ require 'set'
 
 # ##############################################################################
 #
+# 2022 DAY 19
+#
+# ##############################################################################
+
+# Blueprint 1:
+#   Each ore robot costs 4 ore.
+#   Each clay robot costs 2 ore.
+#   Each obsidian robot costs 3 ore and 14 clay.
+#   Each geode robot costs 2 ore and 7 obsidian.
+
+# Blueprint 2:
+#   Each ore robot costs 2 ore.
+#   Each clay robot costs 3 ore.
+#   Each obsidian robot costs 3 ore and 8 clay.
+#   Each geode robot costs 3 ore and 12 obsidian.
+
+# [ [1, 4, 2, 3, 14, 2, 7], [2, 2, 3, 3, 8, 3, 12] ]
+
+def geobreak(bp, timeleft)
+
+  xore, yore, zore, zcla, wore, wobs = bp
+  more = [xore, yore, zore, wore].max
+
+  visited, best = Set[], 0
+  tovisit = [[
+    0, 0, 0, 0, # nore, ncla, nobs, ngeo
+    1, 0, 0, 0, # rore, rcla, robs, rgeo
+    timeleft    # time
+  ]]
+
+  while not tovisit.empty? do
+
+    current = tovisit.shift
+
+    nore, ncla, nobs, ngeo, rore, rcla, robs, rgeo, time = current
+
+    best = ngeo if ngeo > best
+    next if time == 0
+
+    # ############################################
+    # speed up exploration by simplifying similar values
+    # XXX there is surely something way better to do here :-(
+    # XXX   keep best (ngeo) tovisits states for each time val ?
+    # XXX   simplif before adding to tovisit stack ?
+    # XXX   do not create robot if not enough time for next elt ?
+    #  -> do not generate more elemts than 2 * max consumption ?
+    nobs = [nobs, wobs * 2].min
+    ncla = [ncla, zcla * 2].min
+    nore = [nore, more * 2].min
+    #  -> do not generate more robots than max consumption
+    robs = [robs, wobs].min
+    rcla = [rcla, zcla].min
+    rore = [rore, more].min
+    #
+    current = nore, ncla, nobs, ngeo, rore, rcla, robs, rgeo, time
+    # ############################################
+
+    next if visited.include?(current)
+    visited << current
+
+    # create rgeo
+    if nore >= wore and nobs >= wobs then
+      tovisit << [
+        nore + rore - wore, ncla + rcla, nobs + robs - wobs, ngeo + rgeo,
+        rore, rcla, robs, rgeo + 1, time - 1 ]
+      next # create rgeo is always the best choice
+    end
+
+    # create robs
+    if nore >= zore and ncla >= zcla then
+      tovisit << [
+        nore + rore - zore, ncla + rcla - zcla, nobs + robs, ngeo + rgeo,
+        rore, rcla, robs + 1, rgeo, time - 1 ]
+    end
+
+    # create rcla
+    if nore >= yore then
+      tovisit << [
+        nore + rore - yore, ncla + rcla, nobs + robs, ngeo + rgeo,
+        rore, rcla + 1, robs, rgeo, time - 1 ]
+    end
+
+    # create rore
+    if nore >= xore then
+      tovisit << [
+        nore + rore - xore, ncla + rcla, nobs + robs, ngeo + rgeo,
+        rore + 1, rcla, robs, rgeo, time - 1 ]
+    end
+
+    # create nothing
+    tovisit << [
+      nore + rore, ncla + rcla, nobs + robs, ngeo + rgeo,
+      rore, rcla, robs, rgeo, time - 1 ]
+  end
+
+  best
+end
+
+# debug: 1 9 9
+# debug: 2 0 0
+# debug: 3 1 3
+# debug: 4 9 36
+# debug: 5 0 0
+# debug: 6 2 12
+# debug: 7 8 56
+# debug: 8 1 8
+# debug: 9 0 0
+# debug: 10 0 0
+# debug: 11 6 66
+# debug: 12 2 24
+# debug: 13 2 26
+# debug: 14 0 0
+# debug: 15 2 30
+# debug: 16 0 0
+# debug: 17 0 0
+# debug: 18 13 234
+# debug: 19 0 0
+# debug: 20 7 140
+# debug: 21 6 126
+# debug: 22 0 0
+# debug: 23 15 345
+# debug: 24 1 24
+# debug: 25 3 75
+# debug: 26 0 0
+# debug: 27 4 108
+# debug: 28 13 364
+# debug: 29 6 174
+# debug: 30 10 300
+
+# 2160 (20s)
+def d22191()
+  input(2219)
+    .split("\n")
+    .map { |l| l.scan(/\d+/).map(&:to_i) }
+    .map { |(nb, *bp)| x = geobreak(bp, 24); debug(nb, x, nb * x); nb * x }
+    .sum
+end
+
+# debug: 58
+# debug: 10
+# debug: 23
+
+# 13340 (25s)
+def d22192()
+  input(2219)
+    .split("\n")
+    .take(3)
+    .map { |l| l.scan(/\d+/).map(&:to_i) }
+    .map { |(nb, *bp)| x = geobreak(bp, 32); debug(x); x }
+    .reduce(&:*)
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 18
 #
 # ##############################################################################
