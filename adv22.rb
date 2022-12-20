@@ -6,6 +6,47 @@ require 'set'
 
 # ##############################################################################
 #
+# 2022 DAY 20
+#
+# ##############################################################################
+
+# 5962
+def d22201()
+  list = input(2220).split.map(&:to_i)
+  indx = (0...list.length).to_a
+  for x, n in list.each_with_index do
+    i = indx.find_index(n)
+    indx.rotate!(i)
+    z = indx.shift
+    indx.rotate!(x)
+    indx.unshift(z)
+  end
+  list = indx.map {|i| list[i] }
+  list.rotate!(list.find_index(0))
+  [1000, 2000, 3000].map { |n| list.rotate(n).first }.sum
+end
+
+# 9862431387256
+def d22202()
+  list = input(2220).split.map(&:to_i).map { _1 * 811589153 }
+  indx = (0...list.length).to_a
+  10.times do
+    for x, n in list.each_with_index do
+      i = indx.find_index(n)
+      indx.rotate!(i)
+      z = indx.shift
+      indx.rotate!(x)
+      indx.unshift(z)
+    end
+  end
+  list = indx.map {|i| list[i] }
+  list.rotate!(list.find_index(0))
+  [1000, 2000, 3000].map { |n| list.rotate(n).first }.sum
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 19
 #
 # ##############################################################################
