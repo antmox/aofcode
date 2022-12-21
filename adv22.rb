@@ -6,6 +6,82 @@ require 'set'
 
 # ##############################################################################
 #
+# 2022 DAY 21
+#
+# ##############################################################################
+
+# root: pppw + sjmn
+# dbpl: 5
+# cczh: sllz + lgvd
+# zczc: 2
+# ptdq: humn - dvpt
+# dvpt: 3
+# lfqf: 4
+# humn: 5
+# ljgn: 2
+# sjmn: drzm * dbpl
+# sllz: 4
+# pppw: cczh / lfqf
+# lgvd: ljgn * ptdq
+# drzm: hmdt - zczc
+# hmdt: 32
+
+def getmonkeyops()
+  input(2221).split("\n")
+    .map { |line| mk, *mo = line.split(/[ :]+/); [mk, mo] }.to_h
+end
+
+def evalmonkey(monkeys, monkey)
+  case monkeys[monkey]
+    in [x]         then x.to_i
+    in [x, "+", y] then evalmonkey(monkeys, x) + evalmonkey(monkeys, y)
+    in [x, "-", y] then evalmonkey(monkeys, x) - evalmonkey(monkeys, y)
+    in [x, "*", y] then evalmonkey(monkeys, x) * evalmonkey(monkeys, y)
+    in [x, "/", y] then evalmonkey(monkeys, x) / evalmonkey(monkeys, y)
+  else fail end
+rescue
+  nil
+end
+
+# 85616733059734
+def d22211()
+  monkeys = getmonkeyops()
+  evalmonkey(monkeys, "root")
+end
+
+# 3560324848168
+def d22212()
+  monkeys = getmonkeyops()
+  monkeys["humn"] = nil # will fail eval
+  monkeys["root"][1] = "="
+
+  tovisit, expectd = "root", 0
+  while true do
+    debug("TOVISIT", tovisit, monkeys[tovisit], expectd)
+    break expectd if tovisit == "humn"
+
+    r1, op, r2 = monkeys[tovisit]
+    v1, v2 = evalmonkey(monkeys, r1), evalmonkey(monkeys, r2)
+    fail unless v1 or v2
+
+    tovisit = v1 ? r2 : r1
+    case [v1 , op , v2 ]
+    in   [nil, "+", v2 ] then expectd = expectd - v2 # ? + v2 == X  ->  X - v2
+    in   [v1 , "+", nil] then expectd = expectd - v1 # v1 + ? == X  ->  X - v1
+    in   [nil, "-", v2 ] then expectd = expectd + v2 # ? - v2 == X  ->  X + v2
+    in   [v1 , "-", nil] then expectd = v1 - expectd # v1 - ? == X  ->  v1 - X
+    in   [nil, "/", v2 ] then expectd = expectd * v2 # ? / v2 == X  ->  X * v2
+    in   [v1 , "/", nil] then expectd = v1 / expectd # v1 / ? == X  ->  v1 / X
+    in   [nil, "*", v2 ] then expectd = expectd / v2 # ? * v2 == X  ->  X / v2
+    in   [v1 , "*", nil] then expectd = expectd / v1 # v1 * ? == X  ->  X / v1
+    in   [v1,  "=", v2 ] then expectd = (v1 or v2)   # initial root case
+    else fail end
+  end
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 20
 #
 # ##############################################################################
