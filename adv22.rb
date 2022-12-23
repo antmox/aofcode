@@ -6,6 +6,63 @@ require 'set'
 
 # ##############################################################################
 #
+# 2022 DAY 22
+#
+# ##############################################################################
+
+def nextpos(board, xmax, ymax, x, y, f)
+  # move
+  nx, ny = [x + 1, y] if f == "E"
+  nx, ny = [x, y + 1] if f == "S"
+  nx, ny = [x - 1, y] if f == "W"
+  nx, ny = [x, y - 1] if f == "N"
+  # off-map -> wrap around
+  if not board[[nx, ny]] then
+    case f
+    when "E" then
+      nx = x.downto(-1).map   { |xx| break (xx + 1) if not board[[xx, ny]] }
+    when "W" then
+      nx = x.upto(xmax+1).map { |xx| break (xx - 1) if not board[[xx, ny]] }
+    when "S" then
+      ny = y.downto(-1).map   { |yy| break (yy + 1) if not board[[nx, yy]] }
+    when "N" then
+      ny = y.upto(ymax+1).map { |yy| break (yy - 1) if not board[[nx, yy]] }
+    else fail end
+  end
+  # wall -> stop
+  return [x, y] if board[[nx, ny]] == "#"
+  [nx, ny]
+end
+
+# 164014
+def d22221()
+  board, path = input(2222).split("\n\n")
+  board = board.split("\n").each_with_index.map { |l, y|
+    l.chars.each_with_index.filter_map { |c, x| [[x + 1, y + 1], c] if c != " " }
+  }.flatten(1).to_h.then { _1.default = nil; _1 }
+  path = path.scan(/\d+|[A-Z]/)
+  xmax, ymax = board.keys.transpose.map(&:max)
+  dirs = ['E', 'S', 'W', 'N']
+  x, y, f = (0..).find { |x| board[[x, 1]] == '.' }, 1, 'E'
+
+  for i in path
+    if i == "R" then
+      f = dirs[(dirs.find_index(f) + 1) % 4]
+    elsif i == "L" then
+      f = dirs[(dirs.find_index(f) - 1) % 4]
+    else
+      for i in (1..i.to_i).to_a do
+        x, y = nextpos(board, xmax, ymax, x, y, f)
+      end
+    end
+  end
+
+  [4 * x, 1000 * y, dirs.find_index(f)].sum
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 21
 #
 # ##############################################################################
