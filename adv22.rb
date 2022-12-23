@@ -6,6 +6,93 @@ require 'set'
 
 # ##############################################################################
 #
+# 2022 DAY 23
+#
+# ##############################################################################
+
+#  .....  #  ..##.  #  .....  #  ..#..
+#  ..##.  #  .....  #  ..##.  #  ....#
+#  ..#..  #  ..#..  #  .#...  #  #....
+#  .....  #  ...#.  #  ....#  #  ....#
+#  ..##.  #  ..#..  #  .....  #  .....
+#  .....  #  .....  #  ..#..  #  ..#..
+
+def getelves()
+  input(2223).split("\n").each_with_index.map { |l, y|
+    l.chars.each_with_index.filter_map { |c, x| [x, y] if c == "#" }
+  }.flatten(1).to_set
+end
+
+def checkdir(elves, dir, x, y)
+  case dir
+  when "N" then
+    return [x, y - 1] if not Set[[x, y - 1], [x - 1, y - 1], [x + 1, y - 1]].intersect?(elves)
+  when "S" then
+    return [x, y + 1] if not Set[[x, y + 1], [x - 1, y + 1], [x + 1, y + 1]].intersect?(elves)
+  when "W" then
+    return [x - 1, y] if not Set[[x - 1, y], [x - 1, y + 1], [x - 1, y - 1]].intersect?(elves)
+  when "E" then
+    return [x + 1, y] if not Set[[x + 1, y], [x + 1, y + 1], [x + 1, y - 1]].intersect?(elves)
+  else fail end
+  return nil
+end
+
+def checkadj(elves, x, y)
+  Set[[x - 1, y - 1], [x    , y - 1], [x + 1, y - 1],
+      [x - 1, y    ],                 [x + 1, y    ],
+      [x - 1, y + 1], [x    , y + 1], [x + 1, y + 1]
+     ].intersect?(elves)
+end
+
+def elvesround(elves, n)
+  dirs = ["N", "S", "W", "E"].rotate(n - 1)
+  # first half -> propositions
+  props = {}
+  for x, y in elves do
+    next if not checkadj(elves, x, y)
+    for d in dirs do
+      pr = checkdir(elves, d, x, y)
+      next if not pr
+      (props[pr] ||= []) << [x, y]
+      break
+    end
+  end
+  # second half -> move
+  for k, v in props.filter { |_, l| l.length == 1 } do
+    elves.delete(v.first)
+    elves.add(k)
+  end
+  #
+  elves
+end
+
+# 4236
+def d22231()
+  elves = getelves()
+
+  for n in (1..10) do
+    elves = elvesround(elves, n)
+  end
+
+  (xmin, xmax), (ymin, ymax) = elves.to_a.transpose.map(&:minmax)
+  (xmax + 1 - xmin) * (ymax + 1 - ymin) - elves.length
+end
+
+# 1023 (55s)
+def d22232()
+  elves = getelves()
+
+  for n in (1..) do
+    debug(n) if (n % 100) == 0
+    elve2 = elves.clone
+    elves = elvesround(elves, n)
+    break n if elves == elve2
+  end
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 22
 #
 # ##############################################################################
