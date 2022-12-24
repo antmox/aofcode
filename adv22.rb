@@ -147,6 +147,86 @@ def d22221()
   [4 * x, 1000 * y, dirs.find_index(f)].sum
 end
 
+#  _  2  3
+#  _  5  _
+#  7  8  _
+# 10  _  _
+
+def nextposp2(board, xmax, ymax, x, y, f)
+  # move
+  nx, ny, nf = [x + 1, y, f] if f == "E"
+  nx, ny, nf = [x, y + 1, f] if f == "S"
+  nx, ny, nf = [x - 1, y, f] if f == "W"
+  nx, ny, nf = [x, y - 1, f] if f == "N"
+  # off-map -> find new pos on cube and new facing
+  if not board[[nx, ny]] then
+    if false then
+      nil
+    elsif f == "N" and y == 1 and x >= 1 and x <= 100 then
+      nx, ny, nf = 1, 100 + nx, "E"
+    elsif f == "W" and x == 1 and y >= 151 and y <= 200 then
+      nx, ny, nf = ny - 100, 1, "S"
+    elsif f == "W" and x == 1 and y >= 101 and y <= 150 then
+      nx, ny, nf = 51, 151 - ny, "E"
+    elsif f == "W" and x == 51 and y >= 1 and y <= 50 then
+      nx, ny, nf = 1, 151 - ny, "E"
+    elsif f == "N" and y == 1 and x >= 101 and x <= 150 then
+      nx, ny, nf = nx - 100, 200, "N"
+    elsif f == "S" and y == 200 and x >= 1 and x <= 50 then
+      nx, ny, nf = nx + 100, 1, "S"
+    elsif f == "E" and x == 100 and y >= 51 and y <= 100 then
+      nx, ny, nf = 50 + ny, 50, "N"
+    elsif f == "N" and y == 101 and x >= 1 and x <= 50 then
+      nx, ny, nf = 51, 50 + nx, "E"
+    elsif f == "W" and x == 51 and y >= 51 and y <= 100 then
+      nx, ny, nf = ny - 50, 101, "S"
+    elsif f == "E" and x == 150 and y >= 1 and y <= 50 then
+      nx, ny, nf = 100, 151 - ny, "W"
+    elsif f == "S" and y == 50 and x >= 101 and x <= 150 then
+      nx, ny, nf = 100, nx - 50, "W"
+    elsif f == "E" and x == 100 and y >= 101 and y <= 150 then
+      nx, ny, nf = 150, 151 - ny, "W"
+    elsif f == "S" and y == 150 and x >= 51 and x <= 100 then
+      nx, ny, nf = 50, 100 + nx, "W"
+    elsif f == "E" and x == 50 and y >= 151 and y <= 200 then
+      nx, ny, nf = ny - 100, 150, "N"
+    # XXXX other transitions not needed
+    else debug("XXX", [x, y, f]);  fail; end
+  end
+  # wall -> stop
+  return [x, y, f] if board[[nx, ny]] == "#"
+  [nx, ny, nf]
+end
+
+# 135059 -> too high
+# 183022 -> too high
+
+# 47525
+def d22222()
+  board, path = input(2222).split("\n\n")
+  board = board.split("\n").each_with_index.map { |l, y|
+    l.chars.each_with_index.filter_map { |c, x| [[x + 1, y + 1], c] if c != " " }
+  }.flatten(1).to_h.then { _1.default = nil; _1 }
+  path = path.scan(/\d+|[A-Z]/)
+  xmax, ymax = board.keys.transpose.map(&:max)
+  dirs = ['E', 'S', 'W', 'N']
+  x, y, f = (0..).find { |x| board[[x, 1]] == '.' }, 1, 'E'
+
+  for i in path
+    if i == "R" then
+      f = dirs[(dirs.find_index(f) + 1) % 4]
+    elsif i == "L" then
+      f = dirs[(dirs.find_index(f) - 1) % 4]
+    else
+      for n in (1..i.to_i).to_a do
+        x, y, f = nextposp2(board, xmax, ymax, x, y, f)
+      end
+    end
+  end
+  debug(x, y, f)
+  [4 * x, 1000 * y, dirs.find_index(f)].sum
+end
+
 
 # ##############################################################################
 #
