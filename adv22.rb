@@ -6,6 +6,92 @@ require 'set'
 
 # ##############################################################################
 #
+# 2022 DAY 24
+#
+# ##############################################################################
+
+#  #.######
+#  #>>.<^<#
+#  #.<..<<#
+#  #>v.><>#
+#  #<^v^^>#
+#  ######.#
+
+def getblizzs()
+  blizz =
+    input(2224).split("\n").each_with_index.map { |l, y|
+      l.chars.each_with_index.filter_map { |c, x|
+        case c
+        when ">" then [x - 1, y - 1, 1,  0]
+        when "<" then [x - 1, y - 1, -1, 0]
+        when "^" then [x - 1, y - 1, 0, -1]
+        when "v" then [x - 1, y - 1, 0,  1]
+        else nil end
+    } }.flatten(1)
+  xmax, ymax = blizz.map { |x, y, _, _| [x, y] }.transpose.map(&:max)
+  blizy = blizz.filter{ |x, y, dx, dy| dy == 0 }.group_by { |_, y, _, _| y }
+  blizx = blizz.filter{ |x, y, dx, dy| dx == 0 }.group_by { |x, _, _, _| x }
+  [blizx, blizy, xmax, ymax]
+end
+
+def expmoves(blizx, blizy, xmax, ymax, x, y, t)
+  res = []
+  for nx, ny in [
+    [x, y - 1], [x - 1, y], [x, y], [x + 1, y], [x, y + 1] ] do
+    # valid position ?
+    next if (
+        (x < 0) or (x > xmax) or (y < -1) or (y == -1 and x != 0) or
+        (y > (ymax + 1)) or (y == (ymax + 1) and x != xmax) )
+    # vertical bliz here ?
+    next if blizx.fetch(nx, []).any? { |wx, wy, wdx, wdy|
+      px = (wx + wdx * (t + 1)) % (xmax + 1)
+      py = (wy + wdy * (t + 1)) % (ymax + 1)
+      ( px == nx and py == ny ) }
+    # horizontal bliz here ?
+    next if blizy.fetch(ny, []).any? { |wx, wy, wdx, wdy|
+      px = (wx + wdx * (t + 1)) % (xmax + 1)
+      py = (wy + wdy * (t + 1)) % (ymax + 1)
+      ( px == nx and py == ny ) }
+    #
+    res << [nx, ny, t + 1]
+  end
+  res
+end
+
+def blizzastar(blizx, blizy, xmax, ymax, start, goal, t0)
+  visited = Set[]
+  tovisit = [ [*start, t0] ] # [x, y, t]
+  while not tovisit.empty? do
+    tovisit.sort_by! { |x, y, t| t + (goal[0] - x).abs + (goal[1] - y).abs }
+    x, y, t = tovisit.shift
+    visited.add([x, y, t])
+    return t if [x, y] == goal
+    mvs = expmoves(blizx, blizy, xmax, ymax, x, y, t)
+    mvs = mvs.filter { |mv| not tovisit.include?(mv) }
+    mvs = mvs.filter { |mv| not visited.include?(mv) }
+    tovisit.push(*mvs)
+  end
+end
+
+# 269
+def d22241()
+  blizx, blizy, xmax, ymax = getblizzs()
+  start, goal = [0, -1], [xmax, ymax + 1]
+  blizzastar(blizx, blizy, xmax, ymax, start, goal, 0)
+end
+
+# 825 (92s)
+def d22242()
+  blizx, blizy, xmax, ymax = getblizzs()
+  start, goal = [0, -1], [xmax, ymax + 1]
+  t1 = debug(blizzastar(blizx, blizy, xmax, ymax, start, goal, 0))
+  t2 = debug(blizzastar(blizx, blizy, xmax, ymax, goal, start, t1))
+  debug(blizzastar(blizx, blizy, xmax, ymax, start, goal, t2))
+end
+
+
+# ##############################################################################
+#
 # 2022 DAY 23
 #
 # ##############################################################################
