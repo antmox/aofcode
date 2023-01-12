@@ -74,58 +74,53 @@ def getblizzs()
 end
 
 def expmoves(blizx, blizy, xmax, ymax, x, y, t)
-  res = []
-  for nx, ny in [
-    [x, y - 1], [x - 1, y], [x, y], [x + 1, y], [x, y + 1] ] do
-    # valid position ?
-    next if (
-        (x < 0) or (x > xmax) or (y < -1) or (y == -1 and x != 0) or
-        (y > (ymax + 1)) or (y == (ymax + 1) and x != xmax) )
+  [ [x, y - 1], [x - 1, y], [x, y], [x + 1, y], [x, y + 1] ]
+    .filter_map { |nx, ny|
+      [nx, ny, t + 1] if not (
+    # invalid position ?
+    (((nx < 0) or (nx > xmax) or (ny < -1) or (ny == -1 and nx != 0) or
+      (ny > (ymax + 1)) or (ny == (ymax + 1) and nx != xmax)) ) or
     # vertical bliz here ?
-    next if blizx.fetch(nx, []).any? { |wx, wy, wdx, wdy|
-      px = (wx + wdx * (t + 1)) % (xmax + 1)
-      py = (wy + wdy * (t + 1)) % (ymax + 1)
-      ( px == nx and py == ny ) }
+    (blizx.fetch(nx, []).any? { |_, wy, _, wdy|
+       ny == (wy + wdy * (t + 1)) % (ymax + 1) }) or
     # horizontal bliz here ?
-    next if blizy.fetch(ny, []).any? { |wx, wy, wdx, wdy|
-      px = (wx + wdx * (t + 1)) % (xmax + 1)
-      py = (wy + wdy * (t + 1)) % (ymax + 1)
-      ( px == nx and py == ny ) }
-    #
-    res << [nx, ny, t + 1]
-  end
-  res
+    (blizy.fetch(ny, []).any? { |wx, _, wdx, _|
+       nx == (wx + wdx * (t + 1)) % (xmax + 1) }) ) }
 end
 
-def blizzastar(blizx, blizy, xmax, ymax, start, goal, t0)
-  visited = Set[]
-  tovisit = [ [*start, t0] ] # [x, y, t]
+def blizzwalk(blizx, blizy, xmax, ymax, start, goal, t0)
+  visiting = Set[]
+  dst = lambda { |(x1, y1), (x2, y2)| (x2 - x1).abs + (y2 - y1).abs }
+  tovisit = [ [*start, t0, t0 + dst.(start, goal)] ]
   while not tovisit.empty? do
-    tovisit.sort_by! { |x, y, t| t + (goal[0] - x).abs + (goal[1] - y).abs }
-    x, y, t = tovisit.shift
-    visited.add([x, y, t])
+    x, y, t, d = tovisit.shift
+    debug(visiting.length) if [x, y] == goal
     return t if [x, y] == goal
-    mvs = expmoves(blizx, blizy, xmax, ymax, x, y, t)
-    mvs = mvs.filter { |mv| not tovisit.include?(mv) }
-    mvs = mvs.filter { |mv| not visited.include?(mv) }
-    tovisit.push(*mvs)
+    expmoves(blizx, blizy, xmax, ymax, x, y, t)
+      .filter { |mv| not visiting.include?(mv) }
+      .each { |mv| visiting.add(mv) }
+      .each { |nx, ny, nt|
+        nd = nt + dst.([nx, ny], goal)
+        ps = tovisit.index { |_, _, _, _d| _d >= nd } || -1
+        tovisit.insert(ps, [nx, ny, nt, nd])
+      }
   end
 end
 
-# 269
+# 269 (2s)
 def d22241()
   blizx, blizy, xmax, ymax = getblizzs()
   start, goal = [0, -1], [xmax, ymax + 1]
-  blizzastar(blizx, blizy, xmax, ymax, start, goal, 0)
+  blizzwalk(blizx, blizy, xmax, ymax, start, goal, 0)
 end
 
-# 825 (92s)
+# 825 (7s)
 def d22242()
   blizx, blizy, xmax, ymax = getblizzs()
   start, goal = [0, -1], [xmax, ymax + 1]
-  t1 = debug(blizzastar(blizx, blizy, xmax, ymax, start, goal, 0))
-  t2 = debug(blizzastar(blizx, blizy, xmax, ymax, goal, start, t1))
-  debug(blizzastar(blizx, blizy, xmax, ymax, start, goal, t2))
+  t1 = debug(blizzwalk(blizx, blizy, xmax, ymax, start, goal, 0))
+  t2 = debug(blizzwalk(blizx, blizy, xmax, ymax, goal, start, t1))
+  debug(blizzwalk(blizx, blizy, xmax, ymax, start, goal, t2))
 end
 
 
@@ -1658,7 +1653,7 @@ def d22041()
 end
 
 # 825
-def d22041()
+def d22042()
   input(2204)
     .split
     .filter { |line|
@@ -1815,16 +1810,18 @@ fail if RUBY_VERSION.to_f < 3.0
 
 if $PROGRAM_NAME == __FILE__
 
-  proc, *args = ARGV
+  ARGV << private_methods.filter {
+    _1.to_s.match?(/d\d{5}/) }.sort.last if ARGV.empty?
 
-  proc ||= private_methods.filter {_1.to_s.match?(/d\d{5}/) }.sort.last
+  for proc in ARGV do
 
-  debug("call #{proc} ( #{args} )")
+    debug("call #{proc}")
 
-  fstr = Time.now
-  p self.send(proc.to_sym, *args)
-  fend = Time.now
+    fstr = Time.now
+    p self.send(proc.to_sym)
+    fend = Time.now
 
-  debug("took #{fend - fstr}s")
+    debug("-> #{proc} took #{fend - fstr}s")
+  end
 
 end
